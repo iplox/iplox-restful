@@ -1,0 +1,20 @@
+{
+   "name":"iplox/iplox-restful",
+	"authors": [
+        {
+            "name": "Jr. Stanley Zapata",
+            "email": "jrzapata@hotmail.com"
+        }
+   ],
+   "config": {
+      "vendor-dir": "vendor/"
+   },
+   "require": {
+     "iplox/iplox": "0.1.*"
+   },
+   "autoload": {
+   	"psr-0": {
+        "Iplox\\Restful": "src/"
+      }
+   }
+}

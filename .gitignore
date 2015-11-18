@@ -1,0 +1,11 @@
+# Comentarios
+*.*~
+.*~
+*~
+doc/**/*
+vendor/
+composer.lock
+
+# InteliJ IDE file and folder
+*.iml
+.idea/
