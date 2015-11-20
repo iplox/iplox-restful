@@ -165,4 +165,16 @@ class AbstractController extends BaseController
             );
         }
     }
+
+    public function excludeColumns($items, $columns)
+    {
+        if(empty($items)) {
+            return [];
+        }
+
+        $columnNames = array_flip(array_diff($this->queryFilters, $columns));
+        return array_map(function($item) use (&$columnNames){
+            return array_intersect_key($item, $columnNames);
+        }, $items);
+    }
 }
