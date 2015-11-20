@@ -8,7 +8,7 @@ use Iplox\Config;
 use Iplox\Http\Response;
 use Iplox\Http\StatusCode;
 
-class AbstractController extends BaseController
+class DbalReadyController extends BaseController
 {
     protected $module;
     protected $config;
