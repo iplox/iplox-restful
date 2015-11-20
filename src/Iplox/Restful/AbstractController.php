@@ -34,7 +34,7 @@ class AbstractController extends BaseController
         $this->contentType = 'application/json';
     }
 
-    public function getReadyQueryBuilder($table, $alias, $filters = [], $relations = [], $exclusions = [])
+    public function getReadyQueryBuilder($table = null, $alias = null, $filters = [], $relations = [], $exclusions = [])
     {
         $params = $this->module->request->params;
         $qb = $this->queryBuilder;
