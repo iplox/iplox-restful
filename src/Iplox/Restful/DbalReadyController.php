@@ -46,9 +46,10 @@ class DbalReadyController extends BaseController
 
         $qb->from($table, $alias);
 
-        //Fields selection. Only support '=' operations. Pending to implement >=, <=, <>, != comparations.
+        //Fields selection. Only support '=' operations. Pending to implement >=, <=, <>, != comparat ions.
         if(array_key_exists('fields', $params) && !empty($params['fields'])){
-            $qb->select($this->quoteCommaSeparated($params['fields']));
+            $fields = preg_split('/,/', $params['fields']);
+            call_user_func_array([$qb, 'select'], $fields);
         } else {
             $qb->select('*');
         }
@@ -130,17 +131,22 @@ class DbalReadyController extends BaseController
     public function quoteCommaSeparated($string)
     {
         $values = preg_split('/,/', trim($string, ','));
-        return $this->quoteArrayItems($values);
-    }
 
-    public function quoteArrayItems($values)
-    {
         $quote = '';
         foreach($values as $v){
             $quote .= ',' . $this->dbConn->quote($v);
         }
         $quote = trim($quote, ",");
         return $quote;
+    }
+
+    public function quoteArrayItems($values)
+    {
+        $quoted = [];
+        foreach($values as $v){
+            array_push($quoted, $this->dbConn->quote($v));
+        }
+        return $quoted;
     }
 
     public function payAttention($fn)
