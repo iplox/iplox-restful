@@ -47,7 +47,7 @@ class DbalReadyController extends BaseController
         $qb->from($table, $alias);
 
         //Fields selection. Only support '=' operations. Pending to implement >=, <=, <>, != comparat ions.
-        if(array_key_exists('fields', $params) && !empty($params['fields'])){
+        if (array_key_exists('fields', $params) && !empty($params['fields'])) {
             $fields = preg_split('/,/', $params['fields']);
             call_user_func_array([$qb, 'select'], $fields);
         } else {
@@ -55,20 +55,62 @@ class DbalReadyController extends BaseController
         }
 
         //Sorting. Still do not detect if ordering in desc or asc.
-        if(array_key_exists('sort', $params) && !empty($params['sort'])){
+        if (array_key_exists('sort', $params) && !empty($params['sort'])) {
             $qb->orderBy($this->quoteCommaSeparated($params['sort']));
         }
 
         //Limit.
-        if(array_key_exists('limit', $params) && !empty($params['limit'])){
+        if (array_key_exists('limit', $params) && !empty($params['limit'])) {
             $qb->setMaxResults($params['limit']);
         } else {
             $qb->setMaxResults(($this->maxResultsCount ? $this->maxResultsCount : 20));
         }
 
         //Offset.
-        if(array_key_exists('offset', $params) && !empty($params['offset'])){
+        if (array_key_exists('offset', $params) && !empty($params['offset'])) {
             $qb->setFirstResult($params['offset']);
+        }
+
+        //Filtering
+        if (array_key_exists('include', $params) && !empty($params['include'])) {
+            $includes = preg_split('/,/', $params['include']);
+            if (count($includes) > 0) {
+                $filterList = [];
+                foreach ($filters as &$f) {
+                    array_push($filterList, $alias . "_" . $f);
+                }
+
+                foreach ($includes as $inc) {
+                    if (array_key_exists($inc, $relations)) {
+                        foreach ($relations[$inc]['filterFields'] as $f) {
+                            array_push($filterList, $relations[$inc]['tableAlias'] . "_" . $f);
+                        }
+                        $qb->join($relations[$inc]['toAlias'], $inc, $relations[$inc]['tableAlias'], $relations[$inc]['onCondition']);
+                    }
+                }
+                $filters = $filterList;
+            }
+        }
+    }
+
+    public function getOneQueryBuilder($table = null, $alias = null, $filters = [], $relations = [], $exclusions = [])
+    {
+        $params = $this->module->request->params;
+        $qb = $this->queryBuilder;
+        $table = empty($table) ? $this->tableName : $table;
+        $alias = empty($alias) ? $this->tableAlias : $alias;
+        $filters = empty($filters) ? $this->queryFilters : $filters;
+        $relations = empty($relations) ? $this->tableRelations : $relations;
+        $exclusions = empty($exclusions) ? $this->exclusions : $exclusions;
+
+        $qb->from($table, $alias);
+
+        //Fields selection. Only support '=' operations. Pending to implement >=, <=, <>, != comparat ions.
+        if(array_key_exists('fields', $params) && !empty($params['fields'])){
+            $fields = preg_split('/,/', $params['fields']);
+            call_user_func_array([$qb, 'select'], $fields);
+        } else {
+            $qb->select('*');
         }
 
         //Filtering
@@ -172,15 +214,18 @@ class DbalReadyController extends BaseController
         }
     }
 
-    public function excludeColumns($items, $columns)
+    public function excludeColumns($items, $columns, $isMultidimensional = true)
     {
         if(empty($items)) {
             return [];
         }
 
         $columnNames = array_flip(array_diff($this->queryFilters, $columns));
-        return array_map(function($item) use (&$columnNames){
-            return array_intersect_key($item, $columnNames);
-        }, $items);
+        if($isMultidimensional) {
+            return array_map(function ($item) use (&$columnNames) {
+                return array_intersect_key($item, $columnNames);
+            }, $items);
+        }
+        return array_intersect_key($items, $columnNames);
     }
 }
