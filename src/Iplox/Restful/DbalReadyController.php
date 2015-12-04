@@ -94,7 +94,7 @@ class DbalReadyController extends BaseController
         }
     }
 
-    public function getOneQueryBuilder($table = null, $alias = null, $filters = [], $relations = [], $exclusions = [])
+    public function getOneQueryBuilder($id, $table = null, $alias = null, $filters = [], $relations = [], $exclusions = [])
     {
         $params = $this->module->request->params;
         $qb = $this->queryBuilder;
@@ -135,16 +135,8 @@ class DbalReadyController extends BaseController
             }
         }
 
-        foreach ($params as $fname => $fvalue) {
-            if (in_array($fname, $filters)) {
-                $fname = preg_replace('/_/', '.', $fname, 1);
-                if (preg_match('/\,/', trim($fvalue, ',')) > 0) {
-                    $qb->andWhere("$fname IN (" . $this->quoteCommaSeparated($fvalue) . ")");
-                } else {
-                    $qb->andWhere("$fname = " . $this->dbConn->quote($fvalue));
-                }
-            }
-        }
+        $qb->where('id = :id');
+        $qb->setParameter('id', $id, \PDO::PARAM_INT);
 
         return $qb;
     }
