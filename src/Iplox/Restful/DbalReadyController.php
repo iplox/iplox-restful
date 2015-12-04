@@ -92,6 +92,19 @@ class DbalReadyController extends BaseController
                 $filters = $filterList;
             }
         }
+
+        foreach ($params as $fname => $fvalue) {
+            if (in_array($fname, $filters)) {
+                $fname = preg_replace('/_/', '.', $fname, 1);
+                if (preg_match('/\,/', trim($fvalue, ',')) > 0) {
+                    $qb->andWhere("$fname IN (" . $this->quoteCommaSeparated($fvalue) . ")");
+                } else {
+                    $qb->andWhere("$fname = " . $this->dbConn->quote($fvalue));
+                }
+            }
+        }
+
+        return $qb;
     }
 
     public function getOneQueryBuilder($id, $table = null, $alias = null, $filters = [], $relations = [], $exclusions = [])
