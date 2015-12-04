@@ -7,6 +7,7 @@ use Iplox\BaseController;
 use Iplox\Config;
 use Iplox\Http\Response;
 use Iplox\Http\StatusCode;
+use Doctrine\DBAL\Types\Type;
 
 class DbalReadyController extends BaseController
 {
@@ -214,18 +215,18 @@ class DbalReadyController extends BaseController
         }
     }
 
-    public function excludeColumns($items, $columns, $isMultidimensional = true)
+
+    public function excludeColumns($items, $columns, $isMultidimensional = false)
     {
         if(empty($items)) {
             return [];
         }
 
-        $columnNames = array_flip(array_diff($this->queryFilters, $columns));
         if($isMultidimensional) {
-            return array_map(function ($item) use (&$columnNames) {
-                return array_intersect_key($item, $columnNames);
+            return array_map(function ($item) use (&$columns) {
+                return array_diff_key($item, array_flip($columns));
             }, $items);
         }
-        return array_intersect_key($items, $columnNames);
+        return array_diff_key($items, array_flip($columns));
     }
 }
