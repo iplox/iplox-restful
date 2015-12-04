@@ -251,7 +251,8 @@ class DbalReadyController extends BaseController
                 foreach($fixes as $typeName => $fields){
                     if(is_array($fields)) {
                         foreach($fields as $fieldName){
-                            $item[$fieldName] = Type::getType($typeName)->convertToPHPValue($item[$fieldName], $this->dbConn->getDatabasePlatform());
+                            $item[$fieldName] = Type::getType($typeName)
+                                ->convertToPHPValue($item[$fieldName], $this->dbConn->getDatabasePlatform());
                         }
                     }
                 }
@@ -263,7 +264,8 @@ class DbalReadyController extends BaseController
         foreach($fixes as $typeName => $fields){
             if(is_array($fields)) {
                 foreach($fields as $fieldName){
-                    $items[$fieldName] = Type::getType($typeName)->convertToPHPValue($items[$fieldName]);
+                    $items[$fieldName] = Type::getType($typeName)
+                        ->convertToPHPValue($items[$fieldName], $this->dbConn->getDatabasePlatform());
                 }
             }
         }
