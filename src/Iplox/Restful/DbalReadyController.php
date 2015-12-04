@@ -229,4 +229,45 @@ class DbalReadyController extends BaseController
         }
         return array_diff_key($items, array_flip($columns));
     }
+
+
+    /**
+     * Make type fixes (integer, float, etc.) to an item or collection of items according to the $fixes variable.
+     * @param $items
+     * @param array $fixes
+     * @param bool|true $isMultidimencional
+     * @return array
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    protected function fixTypes($items, $fixes = [], $isMultidimencional = false)
+    {
+        if(empty($items) || empty($fixes)){
+            return $items;
+        }
+
+        if($isMultidimencional){
+            return array_map(function($item) use(&$fixes){
+
+                foreach($fixes as $typeName => $fields){
+                    if(is_array($fields)) {
+                        foreach($fields as $fieldName){
+                            $item[$fieldName] = Type::getType($typeName)->convertToPHPValue($item[$fieldName], $this->dbConn->getDatabasePlatform());
+                        }
+                    }
+                }
+                return $item;
+
+            }, $items);
+        }
+
+        foreach($fixes as $typeName => $fields){
+            if(is_array($fields)) {
+                foreach($fields as $fieldName){
+                    $items[$fieldName] = Type::getType($typeName)->convertToPHPValue($items[$fieldName]);
+                }
+            }
+        }
+
+        return $items;
+    }
 }
