@@ -12,6 +12,7 @@ use Doctrine\DBAL\Types\Type;
 class DbalReadyController extends BaseController
 {
     protected $module;
+    protected $request;
     protected $config;
     protected $dbConn;
     protected $queryBuilder;
@@ -32,6 +33,7 @@ class DbalReadyController extends BaseController
         $this->dbConn = $mod->dbConn;
         $this->queryBuilder = $mod->queryBuilder;
 
+        $this->request = $this->module->request;
         $this->contentType = 'application/json';
     }
 
