@@ -59,7 +59,12 @@ class DbalReadyController extends BaseController
 
         //Sorting. Still do not detect if ordering in desc or asc.
         if (array_key_exists('sort', $params) && !empty($params['sort'])) {
-            $qb->orderBy($this->quoteCommaSeparated($params['sort']));
+            $sortingFields = preg_split('/,/', $params['sort']);
+            foreach($sortingFields as $f){
+                $sortOri = substr($f, 0, 1) === '-' ? 'DESC' : 'ASC';
+                $qb->addOrderBy(
+                    $this->dbConn->quoteIdentifier(preg_replace('/^[\+\-\ ]/', '', $f)), $sortOri);
+            }
         }
 
         //Limit.
