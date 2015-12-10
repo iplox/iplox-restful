@@ -52,9 +52,10 @@ class DbalReadyController extends BaseController
         //Fields selection. Only support '=' operations. Pending to implement >=, <=, <>, != comparat ions.
         if (array_key_exists('fields', $params) && !empty($params['fields'])) {
             $fields = preg_split('/,/', $params['fields']);
+            $fields[0] = 'SQL_CALC_FOUND_ROWS ' .$fields[0];
             call_user_func_array([$qb, 'select'], $fields);
         } else {
-            $qb->select('*');
+            $qb->select('SQL_CALC_FOUND_ROWS *');
         }
 
         //Sorting. Still do not detect if ordering in desc or asc.
