@@ -284,4 +284,15 @@ class DbalReadyController extends BaseController
 
         return $items;
     }
+
+    public function isMissingAny($data, $fields)
+    {
+        foreach($fields as $fName){
+            if(! array_key_exists($fName, $data)){
+                return new Response(['message' => "Missing '$fName' field."], $this->contentType, StatusCode::NOT_ACCEPTABLE);
+            }
+        }
+
+        return false;
+    }
 }
